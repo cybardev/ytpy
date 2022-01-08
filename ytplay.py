@@ -17,19 +17,19 @@ import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
 
-# important constants (some can be altered by environment var    iables)
+# important constants (some can be altered by environment variables)
 # the nth result to play or download
-RESULT_NUM = int(os.environ.get("YT_NUM", 1))
+RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
 # play either "video" or "music" when no args given
-OP_MODE = os.environ.get("YT_MODE", "music")
+OP_MODE: str = os.environ.get("YT_MODE", "music")
 # where to put downloaded files
-DLOAD_DIR = os.environ.get("YT_DLOAD_DIR", "$HOME/Videos/")
+DLOAD_DIR: str = os.environ.get("YT_DLOAD_DIR", "$HOME/Videos/")
 # the media player to use
-PLAYER = "mpv"
+PLAYER: str = "mpv"
 # program to process the youtube videos
-DOWNLOADER = "youtube-dl"
+DOWNLOADER: str = "youtube-dl"
 # PS: Make sure to change the DLOAD_DIR to what you prefer...
-# especially if you're using this script from Windows
+# especially if running the script from Windows
 
 
 def error(err_code=0, msg=".", **kwargs):
@@ -79,7 +79,7 @@ def check_deps(deps_list):
 
 def filter_dupes(id_list):
     """
-    Generate to filter out duplicates from a list of strings
+    Generator to filter out duplicates from a list of strings
 
     @param li: the list to be filtered
     """

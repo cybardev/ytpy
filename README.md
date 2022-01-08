@@ -55,6 +55,8 @@ Usage: ytplay [OPTIONS] <search query>
 
     `YT_DLOAD_DIR=$HOME/Downloads/ ytplay -d darude sandstorm`
 
+PS: [Here](https://defkey.com/mpv-media-player-shortcuts)'s a list of mpv keyboard shortcuts for your convenience.
+
 ### Credits
 - [pystardust](https://github.com/pystardust)'s [ytfzf](https://github.com/pystardust/ytfzf)
 - [This article](https://www.codeproject.com/articles/873060/python-search-youtube-for-video) I found during my quest to implement a simplified version of ytfzf in Python3
