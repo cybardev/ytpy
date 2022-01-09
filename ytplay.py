@@ -181,13 +181,32 @@ def sentinel_prompt(ans, sym="λ"):
     return ans
 
 
-# when invoked as a program...
-if __name__ == "__main__":
-    # execute the main program logic
-    # and process flags and arguments
-    """
-    Main program logic
-    """
+def loop(query, flags):
+    # while the user doesn't quit by pressing ^C (Ctrl+C)...
+    try:
+        # play the requested item and loop over input
+        while query not in ("", "q"):
+            # call the mpv media player with processed flags and URL
+            play(flags, query)
+            # when done, ask if user wants to repeat the last played media
+            answer = input("Play again? (y/n): ")
+            # process user request
+            if answer.lower() in {"n", ""}:
+                # if user answers no, ask what to play next, or quit
+                query = input("Play next (q to quit): ")
+            elif answer.lower() == "y":
+                # if user answers yes, keep playing
+                continue
+            else:
+                # if invalid option is chosen, exit with code 2
+                error(2, "Unrecognized option. Quitting...")
+    # if user presses ^C (Ctrl+C) to quit the program
+    except KeyboardInterrupt:
+        # show a message and quit
+        error(0, "\nQuitting...")
+
+
+def argparse():
     # parse flags and arguments
     try:
         # decide whether to play video or audio only for the session
@@ -238,27 +257,16 @@ if __name__ == "__main__":
         # when arguments are given, prepare to play media
         req_search = sentinel_prompt(extras, prompt_sym)
 
-    # while the user doesn't quit by pressing ^C (Ctrl+C)...
-    try:
-        # play the requested item and loop over input
-        while req_search not in ("", "q"):
-            # call the mpv media player with processed flags and URL
-            play(flags, req_search)
-            # when done, ask if user wants to repeat the last played media
-            answer = input("Play again? (y/n): ")
-            # process user request
-            if answer.lower() in {"n", ""}:
-                # if user answers no, ask what to play next, or quit
-                req_search = input("Play next (q to quit): ")
-            elif answer.lower() == "y":
-                # if user answers yes, keep playing
-                continue
-            else:
-                # if invalid option is chosen, exit with code 2
-                error(2, "Unrecognized option. Quitting...")
-    # if user presses ^C (Ctrl+C) to quit the program
-    except KeyboardInterrupt:
-        # show a message and quit
-        error(0, "\nQuitting...")
+    return req_search, flags
+
+
+# when invoked as a program...
+if __name__ == "__main__":
+    # execute the main program logic
+    # and process flags and arguments
+    """
+    Main program logic
+    """
+    loop(*argparse())
     # exit normally when everything is done
     error(0, "")
