@@ -4,7 +4,7 @@
 Script to play media from YouTube
 
 @author: Sheikh Saad Abdullah
-My Github: https://github.com/cybarspace
+@repo: https://github.com/cybardev/ytplay
 """
 # required imports
 from shutil import which as installed  # to check dependencies
@@ -50,7 +50,9 @@ def error(err_code=0, msg=".", **kwargs):
             + "             -d  <search query>    Download video\n"
             + "             -v  <search query>    Play video \
                     (script plays audio-only by default)\n"
-            + "             -u  <search query>    Fetch video URL"
+            + "             -u  <search query>    Fetch video URL\n"
+            + "\n"
+            + "List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts"
         )
     # print the given or default error message
     print(msg)
@@ -179,7 +181,10 @@ def sentinel_prompt(ans, sym="λ"):
     return ans
 
 
-def main():
+# when invoked as a program...
+if __name__ == "__main__":
+    # execute the main program logic
+    # and process flags and arguments
     """
     Main program logic
     """
@@ -257,9 +262,3 @@ def main():
         error(0, "\nQuitting...")
     # exit normally when everything is done
     error(0, "")
-
-
-# when invoked as a program...
-if __name__ == "__main__":
-    # execute the main function and process flags and arguments accordingly
-    main()
