@@ -133,7 +133,7 @@ def get_media_url(search_str="rickroll"):
     return media_url
 
 
-def play(options, search_str):
+def play(search_str, options):
     """
     Call the media player and play requested media
 
@@ -181,31 +181,6 @@ def sentinel_prompt(ans, sym="λ"):
     return ans
 
 
-def loop(query, flags):
-    # while the user doesn't quit by pressing ^C (Ctrl+C)...
-    try:
-        # play the requested item and loop over input
-        while query not in ("", "q"):
-            # call the mpv media player with processed flags and URL
-            play(flags, query)
-            # when done, ask if user wants to repeat the last played media
-            answer = input("Play again? (y/n): ")
-            # process user request
-            if answer.lower() in {"n", ""}:
-                # if user answers no, ask what to play next, or quit
-                query = input("Play next (q to quit): ")
-            elif answer.lower() == "y":
-                # if user answers yes, keep playing
-                continue
-            else:
-                # if invalid option is chosen, exit with code 2
-                error(2, "Unrecognized option. Quitting...")
-    # if user presses ^C (Ctrl+C) to quit the program
-    except KeyboardInterrupt:
-        # show a message and quit
-        error(0, "\nQuitting...")
-
-
 def argparse():
     # parse flags and arguments
     try:
@@ -227,7 +202,7 @@ def argparse():
             # download the requested media
             download(req_search)
             # exit normally
-            sys.exit()
+            sys.exit(0)
         # if options contain video flag...
         elif "-v" in opts[0]:
             # process the name of media to search
@@ -260,6 +235,25 @@ def argparse():
     return req_search, flags
 
 
+def loop(query, flags):
+    # play the requested item and loop over input
+    while query not in ("", "q"):
+        # call the mpv media player with processed flags and URL
+        play(query, flags)
+        # when done, ask if user wants to repeat the last played media
+        answer = input("Play again? (y/n): ")
+        # process user request
+        if answer.lower() in {"n", ""}:
+            # if user answers no, ask what to play next, or quit
+            query = input("Play next (q to quit): ")
+        elif answer.lower() == "y":
+            # if user answers yes, keep playing
+            continue
+        else:
+            # if invalid option is chosen, exit with code 2
+            error(2, "Unrecognized option. Quitting...")
+
+
 # when invoked as a program...
 if __name__ == "__main__":
     # execute the main program logic
@@ -267,6 +261,12 @@ if __name__ == "__main__":
     """
     Main program logic
     """
-    loop(*argparse())
+    # while the user doesn't quit by pressing ^C (Ctrl+C)...
+    try:
+        loop(*argparse())
+    # if user presses ^C (Ctrl+C) to quit the program
+    except KeyboardInterrupt:
+        # show a message and quit
+        error(0, "\nQuitting...")
     # exit normally when everything is done
     error(0, "")
