@@ -66,6 +66,8 @@ PS: [Here](https://defkey.com/mpv-media-player-shortcuts)'s a list of mpv keyboa
 ### Extras
 **About the `.pyx` file...**
 
+#### I'm currently not updating it anymore. Please consider using the `.py` file instead.
+
 Cython is supposed to be faster but I don't really know Cython so I couldn't optimize it as well. If you can do so, feel free to make a fork, and maybe even a pull request so the script can be improved. It'll be a learning experience for me as well.
 
 As for the performance... It may be slightly faster but the program is still network-bound. Which means, faster internet = faster query = media is played sooner.
