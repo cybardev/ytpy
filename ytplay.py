@@ -253,6 +253,9 @@ def loop(query, flags):
             # if invalid option is chosen, exit with code 2
             error(2, "Unrecognized option. Quitting...")
 
+    # show a message and quit
+    error(0, "\nQuitting...")
+
 
 # when invoked as a program...
 if __name__ == "__main__":
