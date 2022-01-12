@@ -32,6 +32,8 @@ Usage: ytplay [OPTIONS] <search query>
              -d  <search query>    Download video
              -v  <search query>    Play video (audio-only if not specified)
              -u  <search query>    Fetch video URL
+
+List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 ```
 
 #### Examples
