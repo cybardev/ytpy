@@ -4,7 +4,7 @@
 Script to play media from YouTube
 
 @author: Sheikh Saad Abdullah
-@repo: https://github.com/cybardev/ytplay
+@repo: https://github.com/cybardev/ytpy
 """
 # required imports
 from shutil import which as installed  # to check dependencies
@@ -44,7 +44,7 @@ def error(err_code=0, msg=".", **kwargs):
     if msg == ".":
         # set the error message to usage info
         msg = str(
-            "Usage: ytplay [OPTIONS] <search query>\n"
+            "Usage: ytpy [OPTIONS] <search query>\n"
             + "           OPTIONS:\n"
             + "             -h                    Show this help text\n"
             + "             -d  <search query>    Download video\n"
