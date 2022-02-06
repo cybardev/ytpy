@@ -26,7 +26,7 @@ Click to navigate.
 
 ### Usage
 ```
-Usage: ytplay [OPTIONS] <search query>
+Usage: ytpy [OPTIONS] <search query>
            OPTIONS:
              -h                    Show this help text
              -d  <search query>    Download video
@@ -39,23 +39,23 @@ List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 #### Examples
 - Stream audio:
 
-	`ytplay gurenge band cover`
+	`ytpy gurenge band cover`
 
 - Watch a video:
 
-	`ytplay -v rickroll`
+	`ytpy -v rickroll`
 
 - Download a video:
 
-	`ytplay -d penguin flock`
+	`ytpy -d penguin flock`
 
 - Play the audio of the second search result:
 
-    `YT_NUM=2 ytplay plastic love daft punk`
+    `YT_NUM=2 ytpy plastic love daft punk`
 
 - Download a video to a directory other than `$HOME/Videos` (default location):
 
-    `YT_DLOAD_DIR=$HOME/Downloads/ ytplay -d darude sandstorm`
+    `YT_DLOAD_DIR=$HOME/Downloads/ ytpy -d darude sandstorm`
 
 PS: [Here](https://defkey.com/mpv-media-player-shortcuts)'s a list of mpv keyboard shortcuts for your convenience.
 
