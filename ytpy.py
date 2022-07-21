@@ -12,6 +12,7 @@ from urllib import error as urlerr  # no internet connection
 from urllib import request  # to get data from YouTube
 from urllib import parse  # to parse data obtained
 import readline  # for a more user-friendly prompt
+import platform  # to check platform being used
 import getopt  # to parse command-line arguments
 import sys  # to exit with error codes
 import os  # to execute media player
@@ -32,7 +33,7 @@ DOWNLOADER: str = "youtube-dl"
 # especially if running the script from Windows
 
 
-def error(err_code=0, msg=".", **kwargs):
+def error(err_code=0, msg=None, **kwargs):
     """
     Show an error message and exit with requested error code
 
@@ -41,7 +42,7 @@ def error(err_code=0, msg=".", **kwargs):
     @param **kwargs: extra messages
     """
     # if no error message given...
-    if msg == ".":
+    if msg == None:
         # set the error message to usage info
         msg = str(
             "Usage: ytpy [OPTIONS] <search query>\n"
@@ -267,6 +268,6 @@ if __name__ == "__main__":
     # if user presses ^C (Ctrl+C) to quit the program
     except KeyboardInterrupt:
         # show a message and quit
-        error(0, "\nQuitting...")
+        pass
     # exit normally when everything is done
     error(0, "\nQuitting...")
