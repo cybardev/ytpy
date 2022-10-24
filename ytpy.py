@@ -126,7 +126,6 @@ def play(media_url, options):
     @param options: the command line arguments to the player
     @param search_str: the string to search for
     """
-    # if everything is ok, play requested media
     os.system(f"{PLAYER} {options} {media_url}")
 
 
