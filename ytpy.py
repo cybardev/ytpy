@@ -209,10 +209,10 @@ def loop(query, flags):
         media_url = cache_url if cache_url else get_media_url(query)
         play(media_url, flags)
         answer = input("Play again? (y/n): ")
-        if answer.lower() != "y":
-            query = input("Play next (q to quit): ")
-        else:
+        if answer.lower() == "y":
             cache_url = media_url
+        else:
+            query = input("Play next (q to quit): ")
 
 
 if __name__ == "__main__":
