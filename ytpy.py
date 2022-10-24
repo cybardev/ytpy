@@ -18,6 +18,8 @@ import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
 
+# TODO: use argparse module instead of getopt
+
 # important constants (some can be altered by environment variables)
 # the nth result to play or download
 RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
@@ -176,7 +178,9 @@ def optparse(opts, extras) -> tuple:
         check_deps([PLAYER])
         return opts[0][1] + " ".join(extras).rstrip(), ""
     else:
-        error(2, UnknownArgs="Unknown options given.")
+        raise getopt.GetoptError(
+            msg=f"option list {opts[0]} contains unrecognized option"
+        )
 
 
 def argparse() -> tuple:
@@ -198,8 +202,8 @@ def argparse() -> tuple:
             req_search = sentinel_prompt(extras)
             if not flags:
                 flags = MPV_FLAGS
-    except getopt.GetoptError:
-        error(2, UnknownArgs="Unknown options given.")
+    except getopt.GetoptError as opterr:
+        error(2, UnknownArguments=opterr.msg)
 
     return req_search, flags
 
