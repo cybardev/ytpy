@@ -166,38 +166,39 @@ def argparse():
     req_search: str = ""
     flags: str = ""
 
-    # TODO: use proper conditional logic instead of relying on exceptions
     try:
         opts, extras = getopt.getopt(sys.argv[1:], "hudv:")
 
-        if "-h" in opts[0]:
-            error()
-        if "-u" in opts[0]:
-            error(0, get_media_url(opts[0][1] + " ".join(extras).rstrip()))
-        elif "-d" in opts[0]:
-            check_deps([DOWNLOADER, "ffmpeg"])
-            download(get_media_url(opts[0][1] + " ".join(extras).rstrip()))
-            sys.exit(0)
-        elif "-v" in opts[0]:
-            req_search = opts[0][1] + " ".join(extras).rstrip()
-            flags = ""
+        # TODO: use helper functions instead of jamming everything here
+        if len(opts):
+            if "-h" in opts[0]:
+                error()
+            if "-u" in opts[0]:
+                error(0, get_media_url(opts[0][1] + " ".join(extras).rstrip()))
+            elif "-d" in opts[0]:
+                check_deps([DOWNLOADER, "ffmpeg"])
+                download(get_media_url(opts[0][1] + " ".join(extras).rstrip()))
+                sys.exit(0)
+            elif "-v" in opts[0]:
+                req_search = opts[0][1] + " ".join(extras).rstrip()
+                flags = ""
+        else:
+            if OP_MODE == "music":
+                prompt_sym = "🎵"
+                flags = "--ytdl-format=bestaudio --no-video"
+            elif OP_MODE == "video":
+                prompt_sym = "🎬"
+                flags = ""
+            else:
+                error(
+                    2,
+                    UnknownValue="variable OP_MODE has an unknown value."
+                    + '\nValid options are "music" and "video"',
+                )
+
+            req_search = sentinel_prompt(extras, prompt_sym)
     except getopt.GetoptError:
         error(2, UnknownArgs="Unknown options given.")
-    except IndexError:
-        if OP_MODE == "music":
-            prompt_sym = "🎵"
-            flags = "--ytdl-format=bestaudio --no-video"
-        elif OP_MODE == "video":
-            prompt_sym = "🎬"
-            flags = ""
-        else:
-            error(
-                2,
-                UnknownValue="variable OP_MODE has an unknown value."
-                + '\nValid options are "music" and "video"',
-            )
-
-        req_search = sentinel_prompt(extras, prompt_sym)
 
     check_deps([PLAYER])  # TODO: check at the moment it's decided to play media
     return req_search, flags
