@@ -22,15 +22,21 @@ import re  # to find media URL from search results
 # the nth result to play or download
 RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
 # play either "video" or "music" when no args given
-OP_MODE: str = os.environ.get("YT_MODE", "music")
+MPV_FLAGS: str = (
+    ""
+    if os.environ.get("YT_MODE") == "video"
+    else "--ytdl-format=bestaudio --no-video"
+)
 # where to put downloaded files
-DLOAD_DIR: str = os.environ.get("YT_DLOAD_DIR", "$HOME/Videos/")
+DLOAD_DIR: str = os.environ.get(
+    "YT_DLOAD_DIR",
+    os.path.expanduser("~")
+    + ("\\Videos\\" if platform.system() == "Windows" else "/Videos/"),
+)
 # the media player to use
 PLAYER: str = "mpv"
 # program to process the youtube videos
 DOWNLOADER: str = "youtube-dl"
-# PS: Make sure to change the DLOAD_DIR to what you prefer...
-# especially if running the script from Windows
 
 
 def error(err_code=0, msg=None, **kwargs):
@@ -86,7 +92,7 @@ def filter_dupes(id_list):
             yield video_id
 
 
-def get_media_url(search_str="rickroll"):
+def get_media_url(search_str="rickroll") -> str:
     """
     Function to get media URL
 
@@ -141,7 +147,7 @@ def download(media_url):
     )
 
 
-def sentinel_prompt(ans, sym="λ"):
+def sentinel_prompt(ans) -> str:
     """
     Propmt to keep asking user for input
     until a valid input is given
@@ -150,14 +156,30 @@ def sentinel_prompt(ans, sym="λ"):
     @param sym the symbol to show in the prompt (purely decorative)
     @return string of query words
     """
+    print("Please enter search query:")
     while len(ans) == 0:
-        print("Please enter search query:")
-        ans = " ".join(input(f"❮{sym}❯ ").split()).strip()
+        ans = " ".join(input(f"❮{'🎵' if MPV_FLAGS else '🎬'}❯ ").split()).strip()
 
     return ans
 
 
-def argparse():
+def optparse(opts, extras) -> tuple:
+    if "-h" in opts[0]:
+        error()
+    if "-u" in opts[0]:
+        error(0, get_media_url(opts[0][1] + " ".join(extras).rstrip()))
+    elif "-d" in opts[0]:
+        check_deps([DOWNLOADER, "ffmpeg"])
+        download(get_media_url(opts[0][1] + " ".join(extras).rstrip()))
+        sys.exit(0)
+    elif "-v" in opts[0]:
+        check_deps([PLAYER])
+        return opts[0][1] + " ".join(extras).rstrip(), ""
+    else:
+        error(2, UnknownArgs="Unknown options given.")
+
+
+def argparse() -> tuple:
     """
     Process flags and arguments
 
@@ -169,50 +191,29 @@ def argparse():
     try:
         opts, extras = getopt.getopt(sys.argv[1:], "hudv:")
 
-        # TODO: use helper functions instead of jamming everything here
         if len(opts):
-            if "-h" in opts[0]:
-                error()
-            if "-u" in opts[0]:
-                error(0, get_media_url(opts[0][1] + " ".join(extras).rstrip()))
-            elif "-d" in opts[0]:
-                check_deps([DOWNLOADER, "ffmpeg"])
-                download(get_media_url(opts[0][1] + " ".join(extras).rstrip()))
-                sys.exit(0)
-            elif "-v" in opts[0]:
-                req_search = opts[0][1] + " ".join(extras).rstrip()
-                flags = ""
+            req_search, flags = optparse(opts, extras)
         else:
-            if OP_MODE == "music":
-                prompt_sym = "🎵"
-                flags = "--ytdl-format=bestaudio --no-video"
-            elif OP_MODE == "video":
-                prompt_sym = "🎬"
-                flags = ""
-            else:
-                error(
-                    2,
-                    UnknownValue="variable OP_MODE has an unknown value."
-                    + '\nValid options are "music" and "video"',
-                )
-
-            req_search = sentinel_prompt(extras, prompt_sym)
+            check_deps([PLAYER])
+            req_search = sentinel_prompt(extras)
+            if not flags:
+                flags = MPV_FLAGS
     except getopt.GetoptError:
         error(2, UnknownArgs="Unknown options given.")
 
-    check_deps([PLAYER])  # TODO: check at the moment it's decided to play media
     return req_search, flags
 
 
 def loop(query, flags):
     cache_url: str = ""
+
     while query not in ("", "q"):
         media_url = cache_url if cache_url else get_media_url(query)
         play(media_url, flags)
+
         answer = input("Play again? (y/n): ")
-        if answer.lower() == "y":
-            cache_url = media_url
-        else:
+        if answer.lower() != "y":
+            cache_url = ""
             query = input("Play next (q to quit): ")
 
 
