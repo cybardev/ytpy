@@ -205,7 +205,7 @@ def argparse():
 
 
 def loop(query, flags):
-    cache_url:str = ""
+    cache_url: str = ""
     while query not in ("", "q"):
         media_url = cache_url if cache_url else get_media_url(query)
         play(media_url, flags)
