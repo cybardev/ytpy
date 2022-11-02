@@ -26,7 +26,7 @@ DOWNLOADER: str = "youtube-dl"
 DOWNLOAD_DIR: str = os.environ.get(
     "YT_DLOAD_DIR",
     os.path.expanduser("~")
-    + ("\\Videos\\" if platform.system() == "Windows" else "/Videos/"),
+    + ("\\Downloads\\" if platform.system() == "Windows" else "/Downloads/"),
 )
 
 
