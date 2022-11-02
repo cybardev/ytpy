@@ -11,24 +11,17 @@ from shutil import which as installed  # to check dependencies
 from urllib import error as urlerr  # no internet connection
 from urllib import request  # to get data from YouTube
 from urllib import parse  # to parse data obtained
+import argparse  # to parse command-line arguments
 import readline  # for a more user-friendly prompt
 import platform  # to check platform being used
-import getopt  # to parse command-line arguments
 import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
-
-# TODO: use argparse module instead of getopt
 
 # important constants (some can be altered by environment variables)
 # the nth result to play or download
 RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
 # play either "video" or "music" when no args given
-MPV_FLAGS: str = (
-    ""
-    if os.environ.get("YT_MODE") == "video"
-    else "--ytdl-format=bestaudio --no-video"
-)
 # where to put downloaded files
 DLOAD_DIR: str = os.environ.get(
     "YT_DLOAD_DIR",
@@ -41,7 +34,7 @@ PLAYER: str = "mpv"
 DOWNLOADER: str = "youtube-dl"
 
 
-def error(err_code=0, msg=None, **kwargs):
+def error(err_code=0, msg="", **kwargs):
     """
     Show an error message and exit with requested error code
 
@@ -49,19 +42,6 @@ def error(err_code=0, msg=None, **kwargs):
     @param msg: the error message
     @param **kwargs: extra messages
     """
-    if msg == None:
-        msg = str(
-            "Usage: ytpy [OPTIONS] <search query>\n"
-            + "           OPTIONS:\n"
-            + "             -h                    Show this help text\n"
-            + "             -d  <search query>    Download video\n"
-            + "             -v  <search query>    Play video \
-                    (script plays audio-only by default)\n"
-            + "             -u  <search query>    Fetch video URL\n"
-            + "\n"
-            + "List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts"
-        )
-
     print(msg)
     for err, err_msg in kwargs.items():
         print(f"{err}: {err_msg}")
@@ -94,7 +74,7 @@ def filter_dupes(id_list):
             yield video_id
 
 
-def get_media_url(search_str="rickroll") -> str:
+def get_media_url(search_str) -> str:
     """
     Function to get media URL
 
@@ -137,75 +117,70 @@ def play(media_url, options):
     os.system(f"{PLAYER} {options} {media_url}")
 
 
-def download(media_url):
-    """
-    Call the media downloader and download requested media
-
-    @param search_str: the string to search for
-    """
-    os.system(
-        f"{DOWNLOADER} -o '{DLOAD_DIR}%(title)s.%(ext)s' \
-                {media_url}"
+def getopts():
+    parser = argparse.ArgumentParser(
+        description="Play YouTube media without API",
+        epilog="List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts",
+        allow_abbrev=False,
     )
+    parser.add_argument(
+        "query",
+        help="media to play",
+        metavar="search_string",
+        type=str,
+        nargs="*",
+    )
+    parser.add_argument(
+        "-u",
+        "--url",
+        help="display URL instead of playing",
+        action="store_true",
+        dest="url_mode",
+    )
+    parser.add_argument(
+        "-v",
+        "--video",
+        help="play video instead of music",
+        action="store_true",
+        dest="video_mode",
+    )
+    parser.add_argument(
+        "-d",
+        "--download",
+        help="download media instead of playing",
+        action="store_true",
+        dest="download_mode",
+    )
+    return parser.parse_args()
 
 
-def sentinel_prompt(ans) -> str:
-    """
-    Propmt to keep asking user for input
-    until a valid input is given
-
-    @param ans the initil user input
-    @param sym the symbol to show in the prompt (purely decorative)
-    @return string of query words
-    """
-    print("Please enter search query:")
-    while len(ans) == 0:
-        ans = " ".join(input(f"❮{'🎵' if MPV_FLAGS else '🎬'}❯ ").split()).strip()
-
-    return ans
-
-
-def optparse(opts, extras) -> tuple:
-    if "-h" in opts[0]:
-        error()
-    if "-u" in opts[0]:
-        error(0, get_media_url(opts[0][1] + " ".join(extras).rstrip()))
-    elif "-d" in opts[0]:
-        check_deps([DOWNLOADER, "ffmpeg"])
-        download(get_media_url(opts[0][1] + " ".join(extras).rstrip()))
-        sys.exit(0)
-    elif "-v" in opts[0]:
-        check_deps([PLAYER])
-        return opts[0][1] + " ".join(extras).rstrip(), ""
-    else:
-        raise getopt.GetoptError(
-            msg=f"option list {opts[0]} contains unrecognized option"
-        )
-
-
-def argparse() -> tuple:
+def arg_parse(args) -> tuple:
     """
     Process flags and arguments
 
     @return search query and mpv flags
     """
-    req_search: str = ""
+    query: str = " ".join(args.query)
     flags: str = ""
 
-    try:
-        opts, extras = getopt.getopt(sys.argv[1:], "hudv:")
+    if args.url_mode:
+        error(0, get_media_url(query))
 
-        if len(opts):
-            req_search, flags = optparse(opts, extras)
-        else:
-            check_deps([PLAYER])
-            req_search = sentinel_prompt(extras)
-            if not flags:
-                flags = MPV_FLAGS
-    except getopt.GetoptError as opterr:
-        error(2, UnknownArguments=opterr.msg)
+    if not args.video_mode:
+        flags = "--ytdl-format=bestaudio --no-video"
 
-    return req_search, flags
+    if args.download_mode:
+        check_deps([DOWNLOADER, "ffmpeg"])
+        os.system(
+            f"{DOWNLOADER} -o '{DLOAD_DIR}%(title)s.%(ext)s' \
+                {get_media_url(query)}"
+        )
+        sys.exit(0)
+
+    while not query:
+        query = " ".join(input(f"❮{'🎵' if flags else '🎬'}❯ ").split()).strip()
+
+    return query, flags
 
 
 def loop(query, flags):
@@ -226,7 +201,7 @@ if __name__ == "__main__":
     Main program logic
     """
     try:
-        loop(*argparse())
+        loop(*arg_parse(getopts()))
     except KeyboardInterrupt:
         pass
     error(0, "\nQuitting...")
