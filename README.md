@@ -64,7 +64,7 @@ List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 
 -   Play the audio of the second search result:
 
-    `YT_NUM=2 yt.py plastic love daft punk`
+    `yt.py -n 2 plastic love daft punk`
 
 -   Download a video to a directory other than `$HOME/Videos` (default location):
 
