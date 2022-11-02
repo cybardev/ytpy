@@ -35,12 +35,11 @@ DOWNLOADER: str = "youtube-dl"
 
 
 def error(err_code=0, msg="", **kwargs):
-    """
-    Show an error message and exit with requested error code
+    """Show an error message and exit with requested error code
 
-    @param err_code: the error code
-    @param msg: the error message
-    @param **kwargs: extra messages
+    Args:
+        err_code (int, optional): the error code. Defaults to 0.
+        msg (str, optional): the error message. Defaults to "".
     """
     print(msg)
     for err, err_msg in kwargs.items():
@@ -49,23 +48,26 @@ def error(err_code=0, msg="", **kwargs):
     sys.exit(err_code)
 
 
-def check_deps(deps_list):
-    """
-    Check if required dependencies are installed
+def check_deps(deps_list: list[str]):
+    """Check if required dependencies are installed
 
-    @param deps_list: list of dependencies to check
+    Args:
+        deps_list (list[str]): list of dependencies to check
     """
     for deps in deps_list:
         if not installed(deps):
             error(1, msg=f"Dependency {deps} not found.\nPlease install it.")
 
 
-def filter_dupes(id_list):
-    """
-    Generator to filter out duplicates from a list of strings
+def filter_dupes(id_list: list[str]):
+    """Generator to filter out duplicates from a list of strings
     Used instead of set() to preserve order of search results
 
-    @param li: the list to be filtered
+    Args:
+        li (list[str]): the list to be filtered
+
+    Yields:
+        video_id (str): unique video ID
     """
     seen = set()
     for video_id in id_list:
@@ -74,12 +76,14 @@ def filter_dupes(id_list):
             yield video_id
 
 
-def get_media_url(search_str) -> str:
-    """
-    Function to get media URL
+def get_media_url(search_str: str) -> str:
+    """Function to get media URL
 
-    @param search_str: the string to search for
-    @return the deduced media URL
+    Args:
+        search_str (str): the string to search for
+
+    Returns:
+        str: the deduced media URL
     """
     video_id_re = re.compile(r'"videoId":"(.{11})"')
     query_string = parse.urlencode({"search_query": search_str})
@@ -107,17 +111,22 @@ def get_media_url(search_str) -> str:
     return media_url
 
 
-def play(media_url, options):
-    """
-    Call the media player and play requested media
+def play(media_url: str, options: str):
+    """Call the media player and play requested media
 
-    @param options: the command line arguments to the player
-    @param search_str: the string to search for
+    Args:
+        media_url (str): the command line arguments to the player
+        options (str): the string to search for
     """
     os.system(f"{PLAYER} {options} {media_url}")
 
 
-def getopts():
+def getopts() -> argparse.Namespace:
+    """Retrieve command-line arguments
+
+    Returns:
+        argparse.Namespace: command-line arguments
+    """
     parser = argparse.ArgumentParser(
         description="Play YouTube media without API",
         epilog="List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts",
@@ -154,11 +163,14 @@ def getopts():
     return parser.parse_args()
 
 
-def arg_parse(args) -> tuple:
-    """
-    Process flags and arguments
+def arg_parse(args: argparse.Namespace) -> tuple:
+    """Process parsed command-line arguments
 
-    @return search query and mpv flags
+    Args:
+        args (argparse.Namespace): parsed arguments
+
+    Returns:
+        tuple: media query string, mpv flags
     """
     query: str = " ".join(args.query)
     flags: str = ""
@@ -184,6 +196,12 @@ def arg_parse(args) -> tuple:
 
 
 def loop(query, flags):
+    """Play the chosen media as user requests
+
+    Args:
+        query (str): media to play
+        flags (str): mpv flags
+    """
     cache_url: str = ""
 
     while query not in ("", "q"):
@@ -197,9 +215,6 @@ def loop(query, flags):
 
 
 if __name__ == "__main__":
-    """
-    Main program logic
-    """
     try:
         loop(*arg_parse(getopts()))
     except KeyboardInterrupt:
