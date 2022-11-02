@@ -98,7 +98,8 @@ def get_media_url(search_str: str, result_num: int) -> str:
 
     search_results = list(filter_dupes(video_id_re.findall(html_content)))
 
-    if len(search_results) == 0:
+    len_results = len(search_results)
+    if len_results == 0 or len_results < result_num:
         error(msg="No results found.")
 
     video_id = search_results[result_num - 1]
