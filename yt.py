@@ -19,19 +19,13 @@ import os  # to execute media player
 import re  # to find media URL from search results
 
 # important constants (some can be altered by environment variables)
-# the nth result to play or download
-RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
-# play either "video" or "music" when no args given
-# where to put downloaded files
-DLOAD_DIR: str = os.environ.get(
+MEDIA_PLAYER: str = "mpv"
+DOWNLOADER: str = "youtube-dl"
+DOWNLOAD_DIR: str = os.environ.get(
     "YT_DLOAD_DIR",
     os.path.expanduser("~")
     + ("\\Videos\\" if platform.system() == "Windows" else "/Videos/"),
 )
-# the media player to use
-PLAYER: str = "mpv"
-# program to process the youtube videos
-DOWNLOADER: str = "youtube-dl"
 
 
 def error(err_code=0, msg="", **kwargs):
@@ -76,7 +70,7 @@ def filter_dupes(id_list: list[str]):
             yield video_id
 
 
-def get_media_url(search_str: str) -> str:
+def get_media_url(search_str: str, result_num: int) -> str:
     """Function to get media URL
 
     Args:
@@ -105,7 +99,7 @@ def get_media_url(search_str: str) -> str:
     if len(search_results) == 0:
         error(msg="No results found.")
 
-    video_id = search_results[RESULT_NUM - 1]
+    video_id = search_results[result_num - 1]
     media_url = "https://www.youtube.com/watch?v=" + video_id
 
     return media_url
@@ -118,7 +112,7 @@ def play(media_url: str, options: str):
         media_url (str): the command line arguments to the player
         options (str): the string to search for
     """
-    os.system(f"{PLAYER} {options} {media_url}")
+    os.system(f"{MEDIA_PLAYER} {options} {media_url}")
 
 
 def getopts() -> argparse.Namespace:
@@ -135,9 +129,17 @@ def getopts() -> argparse.Namespace:
     parser.add_argument(
         "query",
         help="media to play",
-        metavar="search_string",
+        metavar="SEARCH_STRING",
         type=str,
         nargs="*",
+    )
+    parser.add_argument(
+        "-n",
+        help="nth result to play or download",
+        metavar="RESULT_NUM",
+        type=int,
+        default=1,
+        dest="res_num",
     )
     parser.add_argument(
         "-u",
@@ -176,26 +178,28 @@ def arg_parse(args: argparse.Namespace) -> tuple:
     flags: str = ""
 
     if args.url_mode:
-        error(0, get_media_url(query))
+        error(0, get_media_url(query, args.res_num))
 
     if not args.video_mode:
         flags = "--ytdl-format=bestaudio --no-video"
 
     if args.download_mode:
         check_deps([DOWNLOADER, "ffmpeg"])
+        if flags:
+            flags = "-f 'bestaudio' -x --audio-format mp3"
         os.system(
-            f"{DOWNLOADER} -o '{DLOAD_DIR}%(title)s.%(ext)s' \
-                {get_media_url(query)}"
+            f"{DOWNLOADER} -o '{DOWNLOAD_DIR}%(title)s.%(ext)s' {flags} \
+                {get_media_url(query, args.res_num)}"
         )
         sys.exit(0)
 
     while not query:
         query = " ".join(input(f"❮{'🎵' if flags else '🎬'}❯ ").split()).strip()
 
-    return query, flags
+    return query, flags, args.res_num
 
 
-def loop(query, flags):
+def loop(query, flags, res_num):
     """Play the chosen media as user requests
 
     Args:
@@ -205,7 +209,7 @@ def loop(query, flags):
     cache_url: str = ""
 
     while query not in ("", "q"):
-        media_url = cache_url if cache_url else get_media_url(query)
+        media_url = cache_url if cache_url else get_media_url(query, res_num)
         play(media_url, flags)
 
         answer = input("Play again? (y/n): ")
