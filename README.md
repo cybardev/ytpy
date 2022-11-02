@@ -95,7 +95,7 @@ Compile an executable file using [this shell script][cymake] if you want.
 
 <!-- Links -->
 
-[release]: https://github.com/cybarspace/ytplay/releases/download/v1.1.0/ytplay
+[release]: https://github.com/cybardev/ytpy/releases/download/v2.0/yt.py
 [python]: https://www.python.org/downloads/
 [mpv]: https://github.com/mpv-player/mpv
 [ytdl]: https://github.com/ytdl-org/youtube-dl
