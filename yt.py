@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # cython: language_level=3
-"""
-Script to play media from YouTube
+"""Script to play media from YouTube
 
-@author: Sheikh Saad Abdullah
-@repo: https://github.com/cybardev/ytpy
+Author:
+    Sheikh Saad Abdullah
+
+Repo:
+    https://github.com/cybardev/ytpy
 """
 # required imports
 from shutil import which as installed  # to check dependencies
@@ -19,9 +21,16 @@ import os  # to execute media player
 import re  # to find media URL from search results
 
 # important constants (some can be altered by environment variables)
+<<<<<<< HEAD
 MEDIA_PLAYER: str = "mpv"
 DOWNLOADER: str = "youtube-dl"
 DOWNLOAD_DIR: str = os.environ.get(
+=======
+# the nth result to play or download
+RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
+# where to put downloaded files
+DLOAD_DIR: str = os.environ.get(
+>>>>>>> 4583f5712a012b317b35dfe5cbefd3f5b2b4ff07
     "YT_DLOAD_DIR",
     os.path.expanduser("~")
     + ("\\Videos\\" if platform.system() == "Windows" else "/Videos/"),
