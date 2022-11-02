@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # cython: language_level=3
-"""
-Script to play media from YouTube
+"""Script to play media from YouTube
 
-@author: Sheikh Saad Abdullah
-@repo: https://github.com/cybardev/ytpy
+Author:
+    Sheikh Saad Abdullah
+
+Repo:
+    https://github.com/cybardev/ytpy
 """
 # required imports
 from shutil import which as installed  # to check dependencies
