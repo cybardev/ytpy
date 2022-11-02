@@ -21,7 +21,6 @@ import re  # to find media URL from search results
 # important constants (some can be altered by environment variables)
 # the nth result to play or download
 RESULT_NUM: int = int(os.environ.get("YT_NUM", 1))
-# play either "video" or "music" when no args given
 # where to put downloaded files
 DLOAD_DIR: str = os.environ.get(
     "YT_DLOAD_DIR",
