@@ -68,7 +68,7 @@ List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 
 -   Download a video to a directory other than `$HOME/Videos` (default location):
 
-    `YT_DLOAD_DIR=$HOME/Downloads/ yt.py -d darude sandstorm`
+    `YT_DLOAD_DIR=$HOME/Music/ yt.py -d darude sandstorm`
 
 PS: [Here][mpv_hotkeys]'s a list of mpv keyboard shortcuts for your convenience.
 
