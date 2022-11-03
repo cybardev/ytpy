@@ -9,6 +9,7 @@ Repo:
     https://github.com/cybardev/ytpy
 """
 # required imports
+from dataclasses import dataclass  # make truly immutable constants
 from shutil import which as installed  # to check dependencies
 from urllib import error as urlerr  # no internet connection
 from urllib import request  # to get data from YouTube
@@ -20,14 +21,43 @@ import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
 
-# important constants (some can be altered by environment variables)
-MEDIA_PLAYER: str = "mpv"
-DOWNLOADER: str = "youtube-dl"
-DOWNLOAD_DIR: str = os.environ.get(
-    "YT_DLOAD_DIR",
-    os.path.expanduser("~")
-    + ("\\Downloads\\" if platform.system() == "Windows" else "/Downloads/"),
-)
+
+@dataclass(frozen=True)
+class Constants:
+    """
+    Class for important constants (some can be altered by environment variables)
+    """
+
+    __MEDIA_PLAYER: str = "mpv"
+    __CONVERTER: str = "ffmpeg"
+    __DOWNLOADER: str = "youtube-dl"
+    __DOWNLOAD_DIR: str = os.environ.get(
+        "YT_DLOAD_DIR",
+        os.path.expanduser("~")
+        + (
+            "\\Downloads\\" if platform.system() == "Windows" else "/Downloads/"
+        ),
+    )
+
+    @property
+    def MEDIA_PLAYER(self):
+        """Media player to use"""
+        return self.__MEDIA_PLAYER
+
+    @property
+    def CONVERTER(self):
+        """Media converter to use"""
+        return self.__CONVERTER
+
+    @property
+    def DOWNLOADER(self):
+        """Program to download media"""
+        return self.__DOWNLOADER
+
+    @property
+    def DOWNLOAD_DIR(self):
+        """Folder to save downloaded files"""
+        return self.__DOWNLOAD_DIR
 
 
 def error(err_code=0, msg="", **kwargs):
@@ -44,7 +74,7 @@ def error(err_code=0, msg="", **kwargs):
     sys.exit(err_code)
 
 
-def check_deps(deps_list: list[str]):
+def check_deps(deps_list: list):
     """Check if required dependencies are installed
 
     Args:
@@ -115,7 +145,7 @@ def play(media_url: str, options: str):
         media_url (str): the command line arguments to the player
         options (str): the string to search for
     """
-    os.system(f"{MEDIA_PLAYER} {options} {media_url}")
+    os.system(f"{Constants.MEDIA_PLAYER} {options} {media_url}")
 
 
 def getopts() -> argparse.Namespace:
@@ -187,15 +217,16 @@ def arg_parse(args: argparse.Namespace) -> tuple:
         flags = "--ytdl-format=bestaudio --no-video"
 
     if args.download_mode:
-        check_deps([DOWNLOADER, "ffmpeg"])
+        check_deps([Constants.DOWNLOADER, Constants.CONVERTER])
         if flags:
             flags = "-f 'bestaudio' -x --audio-format mp3"
         os.system(
-            f"{DOWNLOADER} -o '{DOWNLOAD_DIR}%(title)s.%(ext)s' {flags} \
+            f"{Constants.DOWNLOADER} -o '{Constants.DOWNLOAD_DIR}%(title)s.%(ext)s' {flags} \
                 {get_media_url(query, args.res_num)}"
         )
         sys.exit(0)
 
+    check_deps([Constants.MEDIA_PLAYER])
     while not query:
         query = " ".join(input(f"❮{'🎵' if flags else '🎬'}❯ ").split()).strip()
 
