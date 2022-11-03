@@ -3,13 +3,13 @@
 """Script to play media from YouTube
 
 Author:
-    Sheikh Saad Abdullah
+    Sheikh Saad Abdullah (cybardev)
 
 Repo:
     https://github.com/cybardev/ytpy
 """
 # required imports
-from dataclasses import dataclass  # make truly immutable constants
+from types import MappingProxyType  # make truly immutable constants
 from shutil import which as installed  # to check dependencies
 from urllib import error as urlerr  # no internet connection
 from urllib import request  # to get data from YouTube
@@ -21,43 +21,22 @@ import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
 
-
-@dataclass(frozen=True)
-class Constants:
-    """
-    Class for important constants (some can be altered by environment variables)
-    """
-
-    __MEDIA_PLAYER: str = "mpv"
-    __CONVERTER: str = "ffmpeg"
-    __DOWNLOADER: str = "youtube-dl"
-    __DOWNLOAD_DIR: str = os.environ.get(
-        "YT_DLOAD_DIR",
-        os.path.expanduser("~")
-        + (
-            "\\Downloads\\" if platform.system() == "Windows" else "/Downloads/"
+CONSTANTS = MappingProxyType(
+    {
+        "media_player": "mpv",
+        "converter": "ffmpeg",
+        "downloader": "youtube-dl",
+        "download_dir": os.environ.get(
+            "YT_DLOAD_DIR",
+            os.path.expanduser("~")
+            + (
+                "\\Downloads\\"
+                if platform.system() == "Windows"
+                else "/Downloads/"
+            ),
         ),
-    )
-
-    @property
-    def MEDIA_PLAYER(self):
-        """Media player to use"""
-        return self.__MEDIA_PLAYER
-
-    @property
-    def CONVERTER(self):
-        """Media converter to use"""
-        return self.__CONVERTER
-
-    @property
-    def DOWNLOADER(self):
-        """Program to download media"""
-        return self.__DOWNLOADER
-
-    @property
-    def DOWNLOAD_DIR(self):
-        """Folder to save downloaded files"""
-        return self.__DOWNLOAD_DIR
+    }
+)
 
 
 def error(err_code=0, msg="", **kwargs):
@@ -142,10 +121,11 @@ def play(media_url: str, options: str):
     """Call the media player and play requested media
 
     Args:
-        media_url (str): the command line arguments to the player
-        options (str): the string to search for
+        player (str): media player to use
+        media_url (str): command line arguments to the player
+        options (str): URL of media to play
     """
-    os.system(f"{Constants.MEDIA_PLAYER} {options} {media_url}")
+    os.system(f"{CONSTANTS['media_player']} {options} {media_url}")
 
 
 def getopts() -> argparse.Namespace:
@@ -217,28 +197,30 @@ def arg_parse(args: argparse.Namespace) -> tuple:
         flags = "--ytdl-format=bestaudio --no-video"
 
     if args.download_mode:
-        check_deps([Constants.DOWNLOADER, Constants.CONVERTER])
+        check_deps([CONSTANTS["downloader"], CONSTANTS["converter"]])
         if flags:
             flags = "-f 'bestaudio' -x --audio-format mp3"
         os.system(
-            f"{Constants.DOWNLOADER} -o '{Constants.DOWNLOAD_DIR}%(title)s.%(ext)s' {flags} \
-                {get_media_url(query, args.res_num)}"
+            f"{CONSTANTS['downloader']} -o '{CONSTANTS['download_dir']}%(title)s.%(ext)s' \
+                {flags} {get_media_url(query, args.res_num)}"
         )
         sys.exit(0)
 
-    check_deps([Constants.MEDIA_PLAYER])
+    check_deps([CONSTANTS["media_player"]])
     while not query:
         query = " ".join(input(f"❮{'🎵' if flags else '🎬'}❯ ").split()).strip()
 
     return query, flags, args.res_num
 
 
-def loop(query, flags, res_num):
+def loop(query: str, flags: str, res_num: int):
     """Play the chosen media as user requests
 
     Args:
+        player (str): media player to use
         query (str): media to play
         flags (str): mpv flags
+        res_num (int): nth result to play
     """
     cache_url: str = ""
 
@@ -249,7 +231,7 @@ def loop(query, flags, res_num):
         answer = input("Play again? (y/n): ")
         if answer.lower() != "y":
             cache_url = ""
-            query = input("Play next (q to quit): ")
+            query = input("Play next (q/Enter to quit): ")
 
 
 if __name__ == "__main__":
