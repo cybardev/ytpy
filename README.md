@@ -54,13 +54,17 @@ List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 
     `yt.py gurenge band cover`
 
+-   Download audio:
+
+    `yt.py -d astronomia`
+
 -   Watch a video:
 
     `yt.py -v rickroll`
 
 -   Download a video:
 
-    `yt.py -d penguin flock`
+    `yt.py -dv penguin flock`
 
 -   Play the audio of the second search result:
 
