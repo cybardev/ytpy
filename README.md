@@ -31,19 +31,20 @@ Click to navigate.
 ### Usage
 
 ```sh
-usage: yt.py [-h] [-n RESULT_NUM] [-u] [-v] [-d] [SEARCH_STRING ...]
+usage: yt.py [-h] [-u] [-v] [-d] [-n NUM] [-o DIR] [SEARCH_STRING ...]
 
 Play YouTube media without API
 
 positional arguments:
-  SEARCH_STRING   media to play
+  SEARCH_STRING         media to play
 
 options:
-  -h, --help      show this help message and exit
-  -n RESULT_NUM   nth result to play or download
-  -u, --url       display URL instead of playing
-  -v, --video     play video instead of music
-  -d, --download  download media instead of playing
+  -h, --help            show this help message and exit
+  -u, --url             display URL instead of playing
+  -v, --video           play video instead of music
+  -d, --download        download media instead of playing
+  -n NUM, --num NUM     nth result to play or download
+  -o DIR, --output DIR  folder to save downloaded media
 
 List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 ```
@@ -72,7 +73,7 @@ List of mpv hotkeys: https://defkey.com/mpv-media-player-shortcuts
 
 -   Download a video to a directory other than `$HOME/Videos` (default location):
 
-    `YT_DLOAD_DIR=$HOME/Music/ yt.py -d darude sandstorm`
+    `yt.py -do "$HOME/Music/" darude sandstorm`
 
 PS: [Here][mpv_hotkeys]'s a list of mpv keyboard shortcuts for your convenience.
 

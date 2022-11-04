@@ -24,22 +24,13 @@ import re  # to find media URL from search results
 CONSTANTS = MappingProxyType(
     {
         "media_player": "mpv",
-        "converter": "ffmpeg",
         "downloader": "youtube-dl",
-        "download_dir": os.environ.get(
-            "YT_DLOAD_DIR",
-            os.path.expanduser("~")
-            + (
-                "\\Downloads\\"
-                if platform.system() == "Windows"
-                else "/Downloads/"
-            ),
-        ),
+        "converter": "ffmpeg",
     }
 )
 
 
-def error(err_code=0, msg="", **kwargs):
+def error(err_code: int = 0, msg: str = "", **kwargs):
     """Show an error message and exit with requested error code
 
     Args:
@@ -53,7 +44,7 @@ def error(err_code=0, msg="", **kwargs):
     sys.exit(err_code)
 
 
-def check_deps(deps_list: list):
+def check_deps(deps_list: list[str]):
     """Check if required dependencies are installed
 
     Args:
@@ -147,14 +138,6 @@ def getopts() -> argparse.Namespace:
         nargs="*",
     )
     parser.add_argument(
-        "-n",
-        help="nth result to play or download",
-        metavar="RESULT_NUM",
-        type=int,
-        default=1,
-        dest="res_num",
-    )
-    parser.add_argument(
         "-u",
         "--url",
         help="display URL instead of playing",
@@ -174,6 +157,27 @@ def getopts() -> argparse.Namespace:
         help="download media instead of playing",
         action="store_true",
         dest="download_mode",
+    )
+    parser.add_argument(
+        "-n",
+        "--num",
+        help="nth result to play or download",
+        metavar="NUM",
+        type=int,
+        dest="res_num",
+        default=1,
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="folder to save downloaded media",
+        metavar="DIR",
+        type=str,
+        dest="download_dir",
+        default=os.path.expanduser("~")
+        + (
+            "\\Downloads\\" if "Windows" in platform.system() else "/Downloads/"
+        ),
     )
     return parser.parse_args()
 
@@ -201,7 +205,7 @@ def arg_parse(args: argparse.Namespace) -> tuple:
         if flags:
             flags = "-f 'bestaudio' -x --audio-format mp3"
         os.system(
-            f"{CONSTANTS['downloader']} -o '{CONSTANTS['download_dir']}%(title)s.%(ext)s' \
+            f"{CONSTANTS['downloader']} -o '{args.download_dir}%(title)s.%(ext)s' \
                 {flags} {get_media_url(query, args.res_num)}"
         )
         sys.exit(0)
