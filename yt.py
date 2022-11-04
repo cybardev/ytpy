@@ -34,8 +34,8 @@ def error(err_code: int = 0, msg: str = "", **kwargs):
     """Show an error message and exit with requested error code
 
     Args:
-        err_code (int, optional): the error code. Defaults to 0.
-        msg (str, optional): the error message. Defaults to "".
+        err_code (int, optional): error code. Defaults to 0.
+        msg (str, optional): error message. Defaults to "".
     """
     print(msg)
     for err, err_msg in kwargs.items():
@@ -60,7 +60,7 @@ def filter_dupes(id_list: list[str]):
     Used instead of set() to preserve order of search results
 
     Args:
-        li (list[str]): the list to be filtered
+        li (list[str]): list to be filtered
 
     Yields:
         video_id (str): unique video ID
@@ -76,7 +76,8 @@ def get_media_url(search_str: str, result_num: int) -> str:
     """Function to get media URL
 
     Args:
-        search_str (str): the string to search for
+        search_str (str): string to search for
+        result_num (int): nth result to play
 
     Returns:
         str: the deduced media URL
@@ -112,7 +113,6 @@ def play(media_url: str, options: str):
     """Call the media player and play requested media
 
     Args:
-        player (str): media player to use
         media_url (str): command line arguments to the player
         options (str): URL of media to play
     """
@@ -221,7 +221,6 @@ def loop(query: str, flags: str, res_num: int):
     """Play the chosen media as user requests
 
     Args:
-        player (str): media player to use
         query (str): media to play
         flags (str): mpv flags
         res_num (int): nth result to play
