@@ -26,6 +26,7 @@ CONSTANTS = MappingProxyType(
         "media_player": "mpv",
         "downloader": "youtube-dl",
         "converter": "ffmpeg",
+        "video_id_re": re.compile(r'"videoId":"(.{11})"'),
     }
 )
 
@@ -44,7 +45,7 @@ def error(err_code: int = 0, msg: str = "", **kwargs):
     sys.exit(err_code)
 
 
-def check_deps(deps_list: list[str]):
+def check_deps(deps_list: list):
     """Check if required dependencies are installed
 
     Args:
@@ -73,7 +74,7 @@ def filter_dupes(id_list: list[str]):
 
 
 def get_media_url(search_str: str, result_num: int) -> str:
-    """Function to get media URL
+    """Retrieve URL of requested media
 
     Args:
         search_str (str): string to search for
@@ -82,31 +83,27 @@ def get_media_url(search_str: str, result_num: int) -> str:
     Returns:
         str: the deduced media URL
     """
-    video_id_re = re.compile(r'"videoId":"(.{11})"')
-    query_string = parse.urlencode({"search_query": search_str})
-
-    # when connected to the internet...
     try:
         # get the YouTube search-result page for given search string
         html_content = (
-            request.urlopen("https://www.youtube.com/results?" + query_string)
+            request.urlopen(
+                "https://www.youtube.com/results?"
+                + parse.urlencode({"search_query": search_str})
+            )
             .read()
             .decode()
         )
-    # if not connected to the internet...
     except urlerr.URLError:
         error(1, "No internet connection.")
 
-    search_results = list(filter_dupes(video_id_re.findall(html_content)))
+    search_results = list(
+        filter_dupes(CONSTANTS["video_id_re"].findall(html_content))
+    )
 
-    len_results = len(search_results)
-    if len_results == 0 or len_results < result_num:
+    if not (0 < len(search_results) >= result_num):
         error(msg="No results found.")
 
-    video_id = search_results[result_num - 1]
-    media_url = "https://www.youtube.com/watch?v=" + video_id
-
-    return media_url
+    return "https://www.youtube.com/watch?v=" + search_results[result_num - 1]
 
 
 def play(media_url: str, options: str):
