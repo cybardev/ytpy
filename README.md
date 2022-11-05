@@ -19,7 +19,7 @@ Click to navigate.
 
 -   [Python 3][python] (tested on PyPy 3.7.9 and CPython 3.9.1)
 -   [mpv][mpv]
--   [youtube-dl][ytdl]
+-   [yt-dlp][ytdl]
 -   [ffmpeg][ffmpeg]
 
 ### Installation
@@ -103,7 +103,7 @@ Compile an executable file using [this shell script][cymake] if you want.
 [release]: https://github.com/cybardev/ytpy/releases/download/v2.0/yt.py
 [python]: https://www.python.org/downloads/
 [mpv]: https://github.com/mpv-player/mpv
-[ytdl]: https://github.com/ytdl-org/youtube-dl
+[ytdl]: https://github.com/yt-dlp/yt-dlp
 [ffmpeg]: https://github.com/FFmpeg/FFmpeg
 [mpv_hotkeys]: https://defkey.com/mpv-media-player-shortcuts
 [pystardust]: https://github.com/pystardust
