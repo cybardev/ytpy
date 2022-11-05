@@ -24,7 +24,7 @@ import re  # to find media URL from search results
 CONSTANTS = MappingProxyType(
     {
         "media_player": "mpv",
-        "downloader": "youtube-dl",
+        "downloader": "yt-dlp",
         "converter": "ffmpeg",
         "video_id_re": re.compile(r'"videoId":"(.{11})"'),
     }
