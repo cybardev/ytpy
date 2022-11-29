@@ -31,18 +31,18 @@ CONSTANTS = MappingProxyType(
 )
 
 
-def error(err_code: int = 0, msg: str = "", **kwargs):
+def error(msg: str = "", code: int = 0, **kwargs):
     """Show an error message and exit with requested error code
 
     Args:
-        err_code (int, optional): error code. Defaults to 0.
-        msg (str, optional): error message. Defaults to "".
+        msg (str, optional): error message. Defaults to ""
+        code (int, optional): error code. Defaults to 0
     """
     print(msg)
     for err, err_msg in kwargs.items():
         print(f"{err}: {err_msg}")
 
-    sys.exit(err_code)
+    sys.exit(code)
 
 
 def check_deps(deps_list: list):
@@ -53,7 +53,7 @@ def check_deps(deps_list: list):
     """
     for deps in deps_list:
         if not installed(deps):
-            error(1, msg=f"Dependency {deps} not found.\nPlease install it.")
+            error(f"Dependency {deps} not found.\nPlease install it.", code=1)
 
 
 def filter_dupes(id_list: list[str]):
@@ -94,14 +94,14 @@ def get_media_url(search_str: str, result_num: int) -> str:
             .decode()
         )
     except urlerr.URLError:
-        error(1, "No internet connection.")
+        error("No internet connection.", code=1)
 
     search_results = list(
         filter_dupes(CONSTANTS["video_id_re"].findall(html_content))
     )
 
     if not (0 < len(search_results) >= result_num):
-        error(msg="No results found.")
+        error("No results found.")
 
     return "https://www.youtube.com/watch?v=" + search_results[result_num - 1]
 
@@ -192,7 +192,7 @@ def arg_parse(args: argparse.Namespace) -> tuple:
     flags: str = ""
 
     if args.url_mode:
-        error(0, get_media_url(query, args.res_num))
+        error(get_media_url(query, args.res_num))
 
     if not args.video_mode:
         flags = "--ytdl-format=bestaudio --no-video"
@@ -239,4 +239,4 @@ if __name__ == "__main__":
         loop(*arg_parse(getopts()))
     except KeyboardInterrupt:
         pass
-    error(0, "\nQuitting...")
+    error("\nQuitting...")
