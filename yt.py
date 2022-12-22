@@ -73,6 +73,13 @@ def filter_dupes(id_list: list[str]):
             yield video_id
 
 
+def validate_url(url: str) -> bool:
+    try:
+        return bool(request.urlopen(url))
+    except (urlerr.URLError, ValueError):
+        return False
+
+
 def get_media_url(search_str: str, result_num: int) -> str:
     """Retrieve URL of requested media
 
@@ -84,6 +91,10 @@ def get_media_url(search_str: str, result_num: int) -> str:
         str: the deduced media URL
     """
     try:
+        # if URL is given, ensure validity and return
+        if validate_url(search_str):
+            return search_str
+
         # get the YouTube search-result page for given search string
         html_content = (
             request.urlopen(
@@ -141,6 +152,13 @@ def getopts() -> argparse.Namespace:
         action="store_true",
         dest="url_mode",
     )
+    # parser.add_argument(
+    #     "-f",
+    #     "--fixed",
+    #     help="play URL instead of searching",
+    #     action="store_true",
+    #     dest="fixed_mode",
+    # )
     parser.add_argument(
         "-v",
         "--video",
@@ -222,15 +240,18 @@ def loop(query: str, flags: str, res_num: int):
         flags (str): mpv flags
         res_num (int): nth result to play
     """
-    cache_url: str = ""
+    media_url: str = ""
 
     while query not in ("", "q"):
-        media_url = cache_url if cache_url else get_media_url(query, res_num)
+        # only fetch media URL if it's not cached
+        if not media_url:
+            media_url = get_media_url(query, res_num)
+
         play(media_url, flags)
 
         answer = input("Play again? (y/n): ")
         if answer.lower() != "y":
-            cache_url = ""
+            media_url = ""  # clear cache
             query = input("Play next (q/Enter to quit): ")
 
 
