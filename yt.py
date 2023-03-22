@@ -263,6 +263,6 @@ def loop(query: str, flags: str, res_num: int):
 if __name__ == "__main__":
     try:
         loop(*arg_parse(getopts()))
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError) as sentinel:
         pass
     error("\nQuitting...")
