@@ -152,13 +152,13 @@ def getopts() -> argparse.Namespace:
         action="store_true",
         dest="url_mode",
     )
-    # parser.add_argument(
-    #     "-f",
-    #     "--fixed",
-    #     help="play URL instead of searching",
-    #     action="store_true",
-    #     dest="fixed_mode",
-    # )
+    parser.add_argument(
+        "-f",
+        "--fixed",
+        help="play media from given URL",
+        action="store_true",
+        dest="fixed_mode",
+    )
     parser.add_argument(
         "-v",
         "--video",
@@ -215,6 +215,9 @@ def arg_parse(args: argparse.Namespace) -> tuple:
     if not args.video_mode:
         flags = "--ytdl-format=bestaudio --no-video"
 
+    if args.fixed_mode:
+        return query, flags, -1
+
     if args.download_mode:
         check_deps([CONSTANTS["downloader"], CONSTANTS["converter"]])
         if flags:
@@ -240,19 +243,21 @@ def loop(query: str, flags: str, res_num: int):
         flags (str): mpv flags
         res_num (int): nth result to play
     """
-    media_url: str = ""
+    if res_num == -1:
+        play(query, flags)
+    else:
+        media_url: str = ""
+        while query not in ("", "q"):
+            # only fetch media URL if it's not cached
+            if not media_url:
+                media_url = get_media_url(query, res_num)
 
-    while query not in ("", "q"):
-        # only fetch media URL if it's not cached
-        if not media_url:
-            media_url = get_media_url(query, res_num)
+            play(media_url, flags)
 
-        play(media_url, flags)
-
-        answer = input("Play again? (y/n): ")
-        if answer.lower() != "y":
-            media_url = ""  # clear cache
-            query = input("Play next (q/Enter to quit): ")
+            answer = input("Play again? (y/n): ")
+            if answer.lower() != "y":
+                media_url = ""  # clear cache
+                query = input("Play next (q/Enter to quit): ")
 
 
 if __name__ == "__main__":
