@@ -21,12 +21,13 @@ import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
 
-CONSTANTS = MappingProxyType(
+CONST = MappingProxyType(
     {
         "media_player": "mpv",
         "downloader": "yt-dlp",
         "converter": "ffmpeg",
         "video_id_re": re.compile(r'"videoId":"(.{11})"'),
+        "fixed_mode_signal": -1,
     }
 )
 
@@ -108,7 +109,7 @@ def get_media_url(search_str: str, result_num: int) -> str:
         error("No internet connection.", code=1)
 
     search_results = list(
-        filter_dupes(CONSTANTS["video_id_re"].findall(html_content))
+        filter_dupes(CONST["video_id_re"].findall(html_content))
     )
 
     if not (0 < len(search_results) >= result_num):
@@ -124,7 +125,7 @@ def play(media_url: str, options: str):
         media_url (str): command line arguments to the player
         options (str): URL of media to play
     """
-    os.system(f"{CONSTANTS['media_player']} {options} {media_url}")
+    os.system(f"{CONST['media_player']} {options} {media_url}")
 
 
 def getopts() -> argparse.Namespace:
@@ -216,19 +217,19 @@ def arg_parse(args: argparse.Namespace) -> tuple:
         flags = "--ytdl-format=bestaudio --no-video"
 
     if args.fixed_mode:
-        return query, flags, -1
+        return query, flags, CONST["fixed_mode_signal"]
 
     if args.download_mode:
-        check_deps([CONSTANTS["downloader"], CONSTANTS["converter"]])
+        check_deps([CONST["downloader"], CONST["converter"]])
         if flags:
             flags = "-f 'bestaudio' -x --audio-format mp3"
         os.system(
-            f"{CONSTANTS['downloader']} -o '{args.download_dir}%(title)s.%(ext)s' \
+            f"{CONST['downloader']} -o '{args.download_dir}%(title)s.%(ext)s' \
                 {flags} {get_media_url(query, args.res_num)}"
         )
         sys.exit(0)
 
-    check_deps([CONSTANTS["media_player"]])
+    check_deps([CONST["media_player"]])
     while not query:
         query = " ".join(input(f"❮{'🎵' if flags else '🎬'}❯ ").split()).strip()
 
@@ -243,7 +244,7 @@ def loop(query: str, flags: str, res_num: int):
         flags (str): mpv flags
         res_num (int): nth result to play
     """
-    if res_num == -1:
+    if res_num == CONST["fixed_mode_signal"]:
         play(query, flags)
     else:
         media_url: str = ""
