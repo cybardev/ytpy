@@ -1,4 +1,16 @@
 # VS Code artifacts
 .vscode
+
+# Python cache directories
 .ipynb_checkpoints
 .mypy_cache
+__pycache__
+
+# build directory
+build/
+dist/
+
+# dev
+src
+pyproject.toml
+yt.c

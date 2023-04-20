@@ -9,6 +9,7 @@ Repo:
     https://github.com/cybardev/ytpy
 """
 # required imports
+from subprocess import run
 from types import MappingProxyType  # make truly immutable constants
 from shutil import which as installed  # to check dependencies
 from urllib import error as urlerr  # no internet connection
@@ -125,7 +126,9 @@ def play(media_url: str, options: str):
         media_url (str): command line arguments to the player
         options (str): URL of media to play
     """
-    os.system(f"{CONST['media_player']} {options} {media_url}")
+    # run(f"{CONST['media_player']} {options} {media_url}", shell=True)
+    status = run([str(CONST["media_player"]), *options.split(), media_url])
+    status.check_returncode()
 
 
 def getopts() -> argparse.Namespace:
@@ -223,10 +226,21 @@ def arg_parse(args: argparse.Namespace) -> tuple:
         check_deps([CONST["downloader"], CONST["converter"]])
         if flags:
             flags = "-f 'bestaudio' -x --audio-format mp3"
-        os.system(
-            f"{CONST['downloader']} -o '{args.download_dir}%(title)s.%(ext)s' \
-                {flags} {get_media_url(query, args.res_num)}"
+        # status = run(
+        #     f"{CONST['downloader']} -o '{args.download_dir}%(title)s.%(ext)s' \
+        #         {flags} {get_media_url(query, args.res_num)}",
+        #     shell=True,
+        # )
+        status = run(
+            [
+                str(CONST["downloader"]),
+                "-o",
+                f"{args.download_dir}%(title)s.%(ext)s",
+                *flags.split(),
+                get_media_url(query, args.res_num),
+            ]
         )
+        status.check_returncode()
         sys.exit(0)
 
     check_deps([CONST["media_player"]])
