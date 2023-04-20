@@ -18,6 +18,7 @@ from urllib import parse  # to parse data obtained
 import argparse  # to parse command-line arguments
 import readline  # for a more user-friendly prompt
 import platform  # to check platform being used
+import shlex  # split args into strings
 import sys  # to exit with error codes
 import os  # to execute media player
 import re  # to find media URL from search results
@@ -127,7 +128,7 @@ def play(media_url: str, options: str):
         options (str): URL of media to play
     """
     # run(f"{CONST['media_player']} {options} {media_url}", shell=True)
-    status = run([str(CONST["media_player"]), *options.split(), media_url])
+    status = run([str(CONST["media_player"]), *shlex.split(options), media_url])
     status.check_returncode()
 
 
@@ -236,7 +237,7 @@ def arg_parse(args: argparse.Namespace) -> tuple:
                 str(CONST["downloader"]),
                 "-o",
                 f"{args.download_dir}%(title)s.%(ext)s",
-                *flags.split(),
+                *shlex.split(flags),
                 get_media_url(query, args.res_num),
             ]
         )
