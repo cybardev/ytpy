@@ -127,9 +127,9 @@ def play(media_url: str, options: str):
         media_url (str): command line arguments to the player
         options (str): URL of media to play
     """
-    # run(f"{CONST['media_player']} {options} {media_url}", shell=True)
-    status = run([str(CONST["media_player"]), *shlex.split(options), media_url])
-    status.check_returncode()
+    run(
+        [str(CONST["media_player"]), *shlex.split(options), media_url]
+    ).check_returncode()
 
 
 def getopts() -> argparse.Namespace:
@@ -227,12 +227,7 @@ def arg_parse(args: argparse.Namespace) -> tuple:
         check_deps([CONST["downloader"], CONST["converter"]])
         if flags:
             flags = "-f 'bestaudio' -x --audio-format mp3"
-        # status = run(
-        #     f"{CONST['downloader']} -o '{args.download_dir}%(title)s.%(ext)s' \
-        #         {flags} {get_media_url(query, args.res_num)}",
-        #     shell=True,
-        # )
-        status = run(
+        run(
             [
                 str(CONST["downloader"]),
                 "-o",
@@ -240,8 +235,7 @@ def arg_parse(args: argparse.Namespace) -> tuple:
                 *shlex.split(flags),
                 get_media_url(query, args.res_num),
             ]
-        )
-        status.check_returncode()
+        ).check_returncode()
         sys.exit(0)
 
     check_deps([CONST["media_player"]])
