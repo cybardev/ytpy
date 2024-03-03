@@ -1,7 +1,4 @@
-remote_theme: pages-themes/minimal@v0.2.0
-plugins:
-    - jekyll-remote-theme
-
+theme: jekyll-theme-minimal
 title: yt.py
 description: Play or download YouTube videos from the terminal
 logo: https://user-images.githubusercontent.com/50134239/109390169-2c1b9000-793a-11eb-94d4-d6b3edc631b7.png
